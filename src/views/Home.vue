@@ -4,6 +4,7 @@
         <label for="country">Where You like to go this weekend?</label>
         <input type="text" name="country"  v-model="country"  id="country">  
       </div>  
+      <!-- <Autocomplete :items="citynames"/>   -->
       <button v-on:click.prevent="getCities()">search</button> 
       <ul>
         <li v-for="city in cities" v-bind:key="city.name">
@@ -19,11 +20,11 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import axios, { AxiosResponse } from 'axios';
-
+import  Autocomplete from "@/components/Autocomplete.vue";
 
 @Component({
     components: {
-       
+       Autocomplete
     }
 })
 export default class Home extends Vue {
@@ -47,8 +48,8 @@ export default class Home extends Vue {
     }
   ]
 
-  public cities = [];
-  private citiesUrl = 'https://api.openaq.org/v1/cities';
+  public cities: (null|any)[] = [];
+  private citiesUrl = 'https://api.openaq.org/v1/latest/';
   private wikiUrl = 'https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&origin=*&titles=';
   public city: string|null = null;
 
@@ -72,8 +73,29 @@ export default class Home extends Vue {
 
   public getCities() {  
     localStorage.country = this.country;
-    axios.get(`${this.citiesUrl}?limit=10&country=${this.country}&&order_by[]=count&sort=desc`).then((response: AxiosResponse) => {
-      this.cities = response.data.results;     
+    axios.get(`${this.citiesUrl}?country=${this.country}`).then((response: AxiosResponse) => {
+      response.data.results.forEach((result: any, index: number) => {
+       
+        if(result.city && 
+          !(this.cities!.find(element => element.name === result.city)))   
+          {
+          
+          this.cities.push({
+            "name": result.city,
+            "pm10": []
+          });
+
+          result.measurements.forEach((measurement: any)=> {
+            
+            if(measurement.parameter === "pm10") {
+              this.cities[index].pm10.push(measurement.value);
+            }
+          });
+
+          console.log(this.cities[index]);
+        }
+      });
+      console.log(this.cities);     
       this.city = null; 
     }).catch(
       (error:string) => {
