@@ -7,8 +7,11 @@
       <!-- <Autocomplete :items="citynames"/>   -->
       <button v-on:click.prevent="getCities()">search</button> 
       <ul>
-        <li v-for="city in cities" v-bind:key="city.name">
+        <li v-for="city in cities" v-bind:key="city.id">
           <span v-on:click.prevent="getCity(city.name)">{{city.name}}</span>
+          <p>
+            {{avg(city.pm10)}}
+          </p>
         </li>
       </ul>
       <p>
@@ -71,28 +74,48 @@ export default class Home extends Vue {
     } 
   }
 
+  public avg(_pm10: number[]) {
+    const pm10 = _pm10;
+    let avg = 0;
+    pm10.forEach(value => {
+      avg =+ value;
+    });
+    return avg/pm10.length;
+  }
+
   public getCities() {  
     localStorage.country = this.country;
-    axios.get(`${this.citiesUrl}?country=${this.country}`).then((response: AxiosResponse) => {
-      response.data.results.forEach((result: any, index: number) => {
-       
-        if(result.city && 
-          !(this.cities!.find(element => element.name === result.city)))   
-          {
+    axios.get(`${this.citiesUrl}?country=${this.country}&limit=250`).then((response: AxiosResponse) => {
+      const data = response.data.results;
+      //console.log(data.length);
+      data.forEach((result: any, index: number) => {
+        if(this.cities!.some(element => element.name === result.city)) {
           
-          this.cities.push({
-            "name": result.city,
-            "pm10": []
-          });
+          this.cities.forEach((city, i)=> {
+           
+            if(city.name === result.city){
+              result.measurements.forEach((measurement: any)=> {
+                
+                if(measurement.parameter === "pm10") {
+                  this.cities[i].pm10.push(measurement.value);
+                }
+              });
 
-          result.measurements.forEach((measurement: any)=> {
-            
-            if(measurement.parameter === "pm10") {
-              this.cities[index].pm10.push(measurement.value);
             }
-          });
+          });  
 
-          console.log(this.cities[index]);
+          
+        } else {
+            result.measurements.forEach((measurement: any)=> {
+              
+              if(measurement.parameter === "pm10") {
+                this.cities!.push({
+                  "id": index,
+                  "name": result.city,
+                  "pm10": [measurement.value]
+                });
+              }
+            });        
         }
       });
       console.log(this.cities);     
@@ -108,7 +131,7 @@ export default class Home extends Vue {
     const city = _city;
 
     localStorage.city = city;
-    console.log(city);
+   // console.log(city);
     axios.get(`${this.wikiUrl}${city}`).then((response: AxiosResponse) => {
       const obj = response.data.query.pages;    
       if(obj) {
