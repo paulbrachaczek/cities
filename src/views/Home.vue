@@ -12,6 +12,9 @@
           <p>
             {{avg(city.pm10)}}
           </p>
+          <p>
+            {{city.pm10}}
+          </p>
         </li>
       </ul>
       <p>
@@ -65,7 +68,6 @@ export default class Home extends Vue {
     if (localStorage.country) {
       this.country = localStorage.country;
       this.getCities();
-      console.log(this.country);
     } 
     if (localStorage.city) {
       const city = localStorage.city;
@@ -78,9 +80,9 @@ export default class Home extends Vue {
     const pm10 = _pm10;
     let avg = 0;
     pm10.forEach(value => {
-      avg =+ value;
+      avg += value;
     });
-    return avg/pm10.length;
+    return (avg/pm10.length).toFixed(2);
   }
 
   public getCities() {  
@@ -118,7 +120,20 @@ export default class Home extends Vue {
             });        
         }
       });
-      console.log(this.cities);     
+      //console.log(this.cities);
+      this.cities = this.cities.sort((a, b) => {
+        let avg1 = 0;
+        let avg2 = 0;
+
+        a.pm10.forEach((value:number) => {
+          avg1 += value;
+        });
+        b.pm10.forEach((value:number) => {
+          avg2 += value;
+        });
+        //console.log(avg1/a.pm10.length);
+        return ((avg2/b.pm10.length) - (avg1/a.pm10.length));
+      }).slice(0,9);
       this.city = null; 
     }).catch(
       (error:string) => {
