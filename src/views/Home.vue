@@ -22,6 +22,9 @@
     </transition>
     <transition name="step-anim" enter-active-class="animated fadeInRight" leave-active-class="animated fadeOutLeft">
       <section class="o-section -second" v-if="step === 1">
+        <h2>
+            Most polluted cities right now:
+        </h2>
         <ul class="m-list">
           <li v-for="city in cities" v-bind:key="city.id" class="m-list_element">
             <a href="#" v-on:click.prevent="getCity(city.name)">{{city.name}} <span>PM10: {{avg(city.pm10)}}</span></a>

@@ -31,9 +31,14 @@
     }
 
     &.-second {
-    
         display: flex;
         justify-content: space-between;
+        flex-wrap: wrap;
+
+        h2 {
+            flex: 0 0 100%;
+            width: 100%;
+        }
 
         .m-list {
             flex: 0 0 50%;
