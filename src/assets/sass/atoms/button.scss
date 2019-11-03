@@ -1,0 +1,174 @@
+.a-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: calculateEm(15px, 16px) calculateEm(10px, 16px) 0;
+    padding: 0 calculateEm(40px, 16px);
+    box-sizing: border-box;
+    border: 1px solid $primary-color;
+    text-decoration: none;
+    font-size: calculateRem(16px);
+    font-weight: $bold;
+    text-align: center;
+    text-transform: uppercase;
+    vertical-align: middle;
+    cursor: pointer;
+    outline: none;
+    @include transitionAll();
+  
+    min-width: calculateEm(167px, 15px);
+    line-height: calculateLine(60px, 15px);
+    height: calculateEm(60px, 15px);
+  
+//    @extend [class^="ricon-"], .ricon-right;
+
+  
+    &:active, &:focus {
+      outline: none;
+    }
+  
+    &:after {
+      content: '';
+      margin: 0 -1em 0 1em;
+      width: calculateEm(30px, 16px);
+      height: calculateEm(30px, 16px);
+      mask: url(~@/assets/images/next.svg) no-repeat 50% 50%;
+      -webkit-mask: url(~@/assets/images/next.svg) no-repeat 50% 50%;
+      background: $primary-color;
+    }
+
+  
+    &.-no-arrow{
+      &:after {
+        content: none;
+      }
+    }
+  
+    &.-primary {
+      background: $white;
+      color: $text-color;
+  
+      &:hover {
+        background: $primary-color;
+        color: $white;
+
+        &::after {
+          background: $white;
+        }
+      }
+    }
+  
+    &.-secondary {
+      background: transparent;
+      color: $primary-color;
+  
+      &:hover {
+        background: $primary-color;
+        color: $white;
+      }
+  
+    }
+  
+    &.-teriary {
+      background: transparent;
+      color: $white;
+      border-color: $white;
+      &:hover {
+        background: $white;
+        color: $primary-color;
+        border-color: $primary-color;
+      }
+    }
+    
+    &.-wauto {
+      min-width: auto;
+    }
+  
+    &.-w100 {
+      width: 100%;
+    }
+
+    &.-lowercase {
+      text-transform: none;
+      font-size: caculateRem(14px);
+    }
+  
+    &.-bigger {
+      height: calculateEm(50px, 12px);
+      line-height: calculateEm(50px, 12px);
+      min-width: calculateEm(230px, 12px);
+      border-radius: calculateEm(25px, 12px);
+    }
+  
+    &.-lower {
+      line-height: calculateLine(40px, 16px);
+      height: calculateEm(40px, 16px);
+      padding: 0 calculateEm(20px, 16px);
+      margin: 0;
+    }
+  
+    &.-mr-auto {
+      margin-right: auto;
+    }
+  
+    &.-ml-auto {
+      margin-left: auto;
+    }
+  
+    &.-center {
+      margin-left: auto;
+      margin-right: auto;
+    }
+  
+    &.-mh20 {
+      margin: 0 calculateEm(20px, 16px);
+    }
+  
+    &.-mt20 {
+      margin-top: calculateEm(20px, 16px);
+    }
+  
+    &.-mt30 {
+      margin-top: calculateEm(30px, 16px);
+    }
+  
+    &[disabled] {
+      opacity: 0.5;
+  
+      &.-primary {
+        cursor: default;
+        opacity: 1;
+        &:hover {
+          background: $primary-color;
+          color: $white;
+        }
+      }
+    }
+
+    i {
+      font-style: normal;
+      margin-right: calculateEm(5px, 16px);
+      @include media-breakpoint-down(sm) {
+        display: none;
+      } 
+    }
+
+    &.-loading {
+      &:before {
+          content: "";
+          position: absolute;
+          top: 50%;
+          left: calculateEm(15px, 16px);
+          width: calculateEm(20px, 16px);
+          height: calculateEm(20px, 16px);
+          margin: calculateEm(-10px, 16px) 0 0 0;
+          border-radius: 50%;
+          border-top: 3px solid $primary-color;
+          border-right: 3px solid transparent;
+          animation: spinner .6s infinite;
+              
+      }
+  }
+
+  }

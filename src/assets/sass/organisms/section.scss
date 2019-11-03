@@ -1,0 +1,35 @@
+.o-section {
+    $p: &;
+    position: relative;
+    width: 100%;
+    padding: calculateEm(30px, 16px) 0;
+    font-size: calculateRem(16px);
+
+    &.animated {
+        position: absolute;
+       // max-width: 100%;
+        
+        // @include media-breakpoint-up(xxl) {
+        //     max-width: 1740px;
+        // };
+    }
+
+    &.-half {
+        padding-right: 45%;
+        .a-logo {
+            
+            @include media-breakpoint-up(lg) {
+                position: absolute;
+                top: 50%;
+                right: 10%;
+                @include translate(0, -50%);
+            }
+        }
+
+        @include media-breakpoint-down(md) {
+            padding-right: 0;
+        }
+
+    }
+
+}
