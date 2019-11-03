@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <transition name="step-anim" enter-active-class="animated fadeInRight" leave-active-class="animated fadeOutLeft">
-      <div v-if="step === 0" class="o-first-step">
+      <section class="o-section -first" v-if="step === 0">
         <div class="m-input -input-text">
             <label for="country">Where You like to go this weekend?</label>
             <input  type="text" 
@@ -17,20 +17,22 @@
                     id="country">  
         </div>  
         <Autocomplete @set-result="setCountry" :items="results" :isOpen="autocompleteOpen" :active="arrowCounter" />  
-        <button class="a-button" v-on:click.prevent="getCities()">search</button> 
-      </div>
+        <button  :disabled="inProgress" class="a-button -primary" v-on:click.prevent="onEnterVal()">search</button> 
+      </section>
     </transition>
     <transition name="step-anim" enter-active-class="animated fadeInRight" leave-active-class="animated fadeOutLeft">
-      <div v-if="step === 1">
+      <section class="o-section -second" v-if="step === 1">
         <ul class="m-list">
           <li v-for="city in cities" v-bind:key="city.id" class="m-list_element">
-            <a v-on:click.prevent="getCity(city.name)">{{city.name}} <span>PM10: {{avg(city.pm10)}}</span></a>
+            <a href="#" v-on:click.prevent="getCity(city.name)">{{city.name}} <span>PM10: {{avg(city.pm10)}}</span></a>
           </li>
         </ul>
-        <p>
-          {{city}}
-        </p>
-      </div>
+        <transition name="step-anim" enter-active-class="animated fadeInUp" leave-active-class="animated fadeOutLeft">
+          <div v-if="city" class="m-city">
+            {{city}}
+          </div>
+        </transition>
+      </section>
     </transition>
   </div>
 </template>
@@ -74,6 +76,7 @@ export default class Home extends Vue {
   private wikiUrl = 'https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&origin=*&titles=';
   public city: string|null = null;
   public arrowCounter = 0;
+  public inProgress = false;
 
   constructor() {
     super();
@@ -100,13 +103,16 @@ export default class Home extends Vue {
   }
 
   public onEnterVal() {
-    // this.coutrynames.forEach(country=> {
-    //   if(country.name.toLowerCase() === this.country.toLowerCase()) {
-    //     this.setCountry([country.id, country.name]);
-    //   }
-
-    // });
-    this.setCountry((Object.values(this.results[this.arrowCounter])));  
+    if(this.results.length) {
+      this.setCountry((Object.values(this.results[this.arrowCounter])));  
+    }
+    else {
+      this.coutrynames.forEach(country=> {
+        if(country.name.toLowerCase() === this.country.toLowerCase()) {
+          this.setCountry([country.id, country.name]);
+        }
+      });
+    }
   }
 
   public setCountry(_result: string[]) {
@@ -131,6 +137,8 @@ export default class Home extends Vue {
 
   private getCities(_county: string) {  
     const country = _county;
+
+    this.inProgress = true;
 
     axios.get(`${this.citiesUrl}?country=${country}&limit=250`).then((response: AxiosResponse) => {
       const data = response.data.results;
@@ -177,9 +185,10 @@ export default class Home extends Vue {
       }).slice(0,9);
       this.city = null; 
       this.step = 1;
+      this.inProgress = false;
     }).catch(
       (error:string) => {
-        
+        this.inProgress = false;
       }
     )
   }

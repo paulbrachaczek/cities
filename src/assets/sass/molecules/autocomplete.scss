@@ -1,5 +1,6 @@
 .m-autocomplete {
     li {
+        padding: 0 calculateEm(10px, 16px);
         &.-active {
             background: gray;
         }

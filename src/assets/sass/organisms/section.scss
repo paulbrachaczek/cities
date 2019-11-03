@@ -14,20 +14,33 @@
         // };
     }
 
-    &.-half {
-        padding-right: 45%;
-        .a-logo {
-            
-            @include media-breakpoint-up(lg) {
-                position: absolute;
-                top: 50%;
-                right: 10%;
-                @include translate(0, -50%);
-            }
+    &.-first {
+        position: relative;
+        text-align: right;
+        .m-autocomplete {
+            position: absolute;
+            top: calculateEm(125px, 16px);
+            left: 0;
+            background: $white;
+            right: 0; 
+            text-align: left;
+        }
+        &.animated {
+            position: absolute;
+        }
+    }
+
+    &.-second {
+    
+        display: flex;
+        justify-content: space-between;
+
+        .m-list {
+            flex: 0 0 50%;
         }
 
-        @include media-breakpoint-down(md) {
-            padding-right: 0;
+        .m-city {
+            flex: 0 0 45%;
         }
 
     }
