@@ -8,8 +8,6 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Emit } from 'vue-property-decorator';
-import axios, { AxiosResponse } from 'axios';
-
 
 @Component({
     components: {
@@ -26,7 +24,7 @@ export default class Autocomplete extends Vue {
   }
 
   @Emit()
-  setResult(result) {
+  setResult(result: string[]) {
     return result;
   }
 

@@ -27,7 +27,7 @@
         </h2>
         <ul class="m-list">
           <li v-for="city in cities" v-bind:key="city.id" class="m-list_element">
-            <a href="#" v-on:click.prevent="getCity(city.name)">{{city.name}} <span>PM10: {{avg(city.pm10)}}</span></a>
+            <a href="#" v-on:click.prevent="getCity(city.name)" :class="{'-active': city.name === selected}">{{city.name}} <span>PM 2.5: {{avg(city.pm25)}}</span></a>
           </li>
         </ul>
         <transition name="step-anim" enter-active-class="animated fadeInUp" leave-active-class="animated fadeOutLeft">
@@ -35,7 +35,13 @@
             {{city}}
           </div>
         </transition>
+        <div class="m-buttons">
+          <button  :disabled="inProgress" class="a-button -primary" v-on:click.prevent="step = 0; scrollTop()">To beginning</button>
+        </div>
       </section>
+    </transition>
+    <transition name="step-anim" enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
+      <Loader v-if="inProgress"/>
     </transition>
   </div>
 </template>
@@ -44,11 +50,13 @@
 import { Vue, Component } from 'vue-property-decorator';
 import axios, { AxiosResponse } from 'axios';
 import  Autocomplete from "@/components/Autocomplete.vue";
-import { Results } from '../models/models';
+import { Location, Country } from '../models/models';
+import Loader from '../components/Loader.vue';
 
 @Component({
     components: {
-       Autocomplete
+       Autocomplete,
+       Loader
     }
 })
 export default class Home extends Vue {
@@ -71,15 +79,16 @@ export default class Home extends Vue {
       name: "Spain"
     }
   ];
-  public results = [];
+  public results: (Country|null)[] = [];
   public autocompleteOpen = false;
   public step = 0;
   public cities: (null|any)[] = [];
-  private citiesUrl = 'https://api.openaq.org/v1/latest/';
+  private citiesUrl = 'https://api.openaq.org/v1/measurements/';
   private wikiUrl = 'https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&origin=*&titles=';
   public city: string|null = null;
   public arrowCounter = 0;
   public inProgress = false;
+  public selected: null|string = null;
 
   constructor() {
     super();
@@ -95,7 +104,6 @@ export default class Home extends Vue {
   public onArrowDown() {
     if (this.arrowCounter < this.results.length) {
       this.arrowCounter++;
-      console.log(this.arrowCounter)
     }
   }
 
@@ -107,7 +115,7 @@ export default class Home extends Vue {
 
   public onEnterVal() {
     if(this.results.length) {
-      this.setCountry((Object.values(this.results[this.arrowCounter])));  
+      this.setCountry((Object.values(this.results[this.arrowCounter]!)));  
     }
     else {
       this.coutrynames.forEach(country=> {
@@ -129,13 +137,41 @@ export default class Home extends Vue {
     this.results = this.coutrynames.filter((countryname) => countryname.name.toLowerCase().indexOf(this.country.toLowerCase()) > -1);
   }
 
-  public avg(_pm10: number[]) {
-    const pm10 = _pm10;
+  public avg(_pm25: number[]) {
+    const pm25 = _pm25;
     let avg = 0;
-    pm10.forEach((value: number) => {
+    pm25.forEach((value: number) => {
       avg += value;
     });
-    return (avg/pm10.length).toFixed(2);
+    return (avg/pm25.length).toFixed(2);
+  }
+
+  public scrollTop() {
+    this.selected = null;
+    this.results = [];
+    this.arrowCounter = 0;
+    this.city = null;
+    this.cities = [];
+    this.country = '';
+    window.scroll({
+      top: 0,
+      left: 0,
+      behavior: 'smooth'
+    });
+  }
+
+   public getCity(_city: string) {
+    let city = _city.indexOf('/') > -1 ? _city.slice(0, _city.indexOf('/')) : _city;
+    this.inProgress = true;
+    this.selected = _city;
+
+    axios.get(`${this.wikiUrl}${encodeURIComponent(city.trim())}`).then((response: AxiosResponse) => {
+      const obj = response.data.query.pages;    
+      if(obj) {
+        this.city = (Object as any).values!(obj)[0].extract;
+        this.inProgress = false;
+      }
+    }).catch((error)=>{ this.inProgress = false; });
   }
 
   private getCities(_county: string) {  
@@ -143,34 +179,22 @@ export default class Home extends Vue {
 
     this.inProgress = true;
 
-    axios.get(`${this.citiesUrl}?country=${country}&limit=250`).then((response: AxiosResponse) => {
+    axios.get(`${this.citiesUrl}?country=${country}&limit=2000&parameter=pm25&order_by[]=value&sort=desc`).then((response: AxiosResponse) => {
       const data = response.data.results;
-      data.forEach((result: Results, index: number) => {
+      data.forEach((result: Location, index: number) => {
         if(this.cities!.some(element => element.name === result.city)) {
           
           this.cities.forEach((city, i)=> {
-           
             if(city.name === result.city){
-              result.measurements!.forEach((measurement: any)=> {
-                
-                if(measurement.parameter === "pm10") {
-                  this.cities[i].pm10.push(measurement.value);
-                }
-              });
-
+              this.cities[i].pm25.push(result.value);
             }
           });  
         } else {
-            result.measurements!.forEach((measurement: any)=> {
-              
-              if(measurement.parameter === "pm10") {
-                this.cities!.push({
-                  "id": index,
-                  "name": result.city,
-                  "pm10": [measurement.value]
-                });
-              }
-            });        
+          this.cities!.push({
+            "id": index,
+            "name": result.city,
+            "pm25": [result.value]
+          });
         }
       });
       
@@ -178,13 +202,13 @@ export default class Home extends Vue {
         let avg1 = 0;
         let avg2 = 0;
 
-        a.pm10.forEach((value:number) => {
+        a.pm25.forEach((value:number) => {
           avg1 += value;
         });
-        b.pm10.forEach((value:number) => {
+        b.pm25.forEach((value:number) => {
           avg2 += value;
         });
-        return ((avg2/b.pm10.length) - (avg1/a.pm10.length));
+        return ((avg2/b.pm25.length) - (avg1/a.pm25.length));
       }).slice(0,9);
       this.city = null; 
       this.step = 1;
@@ -194,17 +218,6 @@ export default class Home extends Vue {
         this.inProgress = false;
       }
     )
-  }
-
-  private getCity(_city: string) {
-    const city = encodeURIComponent(_city.trim());
-
-    axios.get(`${this.wikiUrl}${city}`).then((response: AxiosResponse) => {
-      const obj = response.data.query.pages;    
-      if(obj) {
-        this.city = (Object as any).values!(obj)[0].extract;
-      }
-    }).catch((error)=>{});
   }
 }
 </script>

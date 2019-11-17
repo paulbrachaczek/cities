@@ -1,4 +1,7 @@
 .m-autocomplete {
+    position: relative;
+    z-index: 10;
+    opacity: .9;
     li {
         padding: 0 calculateEm(10px, 16px);
         &.-active {

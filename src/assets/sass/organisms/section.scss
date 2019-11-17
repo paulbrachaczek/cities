@@ -39,13 +39,14 @@
             flex: 0 0 100%;
             width: 100%;
         }
+        @include media-breakpoint-up(lg) {
+            .m-list {
+                flex: 0 0 50%;
+            }
 
-        .m-list {
-            flex: 0 0 50%;
-        }
-
-        .m-city {
-            flex: 0 0 45%;
+            .m-city {
+                flex: 0 0 45%;
+            }
         }
 
     }

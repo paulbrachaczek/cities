@@ -1,31 +1,40 @@
-export interface Results {
+export interface Parameter {
   location: string;
-  city: string;
-  country: string;
-  distance?: number | null;
-  measurements?: (MeasurementsEntity)[] | null;
-  coordinates?: Coordinates | null;
-}
-export interface MeasurementsEntity {
   parameter: string;
+  date: Date;
   value: number;
-  lastUpdated: string;
   unit: string;
-  sourceName: string;
-  averagingPeriod?: AveragingPeriod | null;
+  coordinates: Coordinates;
+  country: string;
+  city: string;
 }
-export interface AveragingPeriod {
-  value: number;
-  unit: string;
+export interface Date {
+  utc: string;
+  local: string;
 }
 export interface Coordinates {
   latitude: number;
   longitude: number;
 }
-export interface Zawartość odpowiedzi {
-  EDITOR_CONFIG: EDITORCONFIG;
+export interface Location {
+  location: string;
+  parameter: string;
+  date: Date;
+  value: number;
+  unit: string;
+  coordinates: Coordinates;
+  country: string;
+  city: string;
 }
-export interface EDITORCONFIG {
-  text: string;
-  mode: string;
+export interface Date {
+  utc: string;
+  local: string;
+}
+export interface Coordinates {
+  latitude: number;
+  longitude: number;
+}
+export interface Country {
+  id: string;
+  name: string;
 }
