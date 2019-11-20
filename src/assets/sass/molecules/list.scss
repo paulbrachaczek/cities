@@ -1,0 +1,21 @@
+.m-list {
+    margin: calculateEm(10px, 16px) 0;
+    flex: 0 0 100%;
+    
+    li a {
+        font-size: calculateRem(20px);
+        margin: -1px 0 0;
+        padding: calculateEm(5px, 20px) calculateEm(20px, 20px);
+        border: 1px solid $primary-color;
+        border-radius: 3px;
+        display: flex;
+        justify-content: space-between;
+        text-decoration: none;
+
+        &:hover, &.-active {
+            background: $primary-color;
+            color: $white;
+            text-decoration: none;
+        }
+    }
+}
